@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sun.temp.update_manyi.repository.DataUploadMapper">
+
+    <select id="getAll" resultType="com.sun.temp.update_manyi.domain.DataUpload">
+        SELECT import_batch, created_time FROM data_upload;
+    </select>
+
+</mapper>

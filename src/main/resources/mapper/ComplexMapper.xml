@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sun.temp.update_manyi.repository.ComplexMapper">
+    <insert id="batchInsertUserLogin">
+        INSERT INTO user_login VALUES
+        <foreach collection="insertList" item="userLogin" open=" ( " close=" ) " separator=" ), ( ">
+            #{userLogin.id} :: UUID , #{userLogin.userId} :: UUID , #{userLogin.lastLoginTime} :: TIMESTAMP
+        </foreach>
+    </insert>
+    <!--<update id="updateCreator">-->
+        <!--UPDATE t_user SET created_date = #{createTime} , updated_date = #{createTime} WHERE id = #{userId}-->
+    <!--</update>-->
+    <update id="updateUsers">
+        UPDATE t_user
+        SET created_date = tmp.created_time,
+        updated_date = tmp.update_time
+        FROM
+        ( VALUES
+            <foreach collection="userList" open="( " close=") " separator="), (" item="user">
+                #{user.id} :: UUID , #{user.createdDate} :: TIMESTAMP, #{user.updatedDate} :: TIMESTAMP
+            </foreach>
+        )
+        AS tmp ( id, created_time ,update_time)
+        WHERE
+            t_user.id = tmp.id;
+    </update>
+    <update id="updateProjects">
+        UPDATE project
+        SET created_date = tmp.created_time,
+        updated_date = tmp.update_time
+        FROM
+        ( VALUES
+        <foreach collection="projectList" open="( " close=") " separator="), (" item="project">
+            #{project.id} :: UUID , #{project.createdDate} :: TIMESTAMP, #{project.updatedDate} :: TIMESTAMP
+        </foreach>
+        )
+        AS tmp ( id, created_time ,update_time)
+        WHERE
+        project.id = tmp.id;
+    </update>
+    <update id="updateDataUploads">
+        UPDATE data_upload
+        SET created_time = tmp.created_time
+        FROM
+        ( VALUES
+        <foreach collection="uploadList" open="( " close=") " separator="), (" item="upload">
+            #{upload.id} :: UUID , #{upload.createdTime} :: TIMESTAMP
+        </foreach>
+        )
+        AS tmp ( id, created_time)
+        WHERE
+        data_upload.id = tmp.id;
+    </update>
+
+
+    <select id="getAllProjectTime" resultType="com.sun.temp.update_manyi.domain.ProjectTime">
+        select * from project_time
+    </select>
+    <select id="findProjectById" resultType="com.sun.temp.update_manyi.domain.Project">
+        select * from project where id = #{id}
+    </select>
+    <select id="findDataUploadByPId" resultType="com.sun.temp.update_manyi.domain.DataUpload">
+        select * from data_upload where project_id = #{projectId} order by created_time asc
+    </select>
+    <select id="findUserByProjectId" resultType="com.sun.temp.update_manyi.domain.User">
+        SELECT * FROM t_user
+        where id in (SELECT user_id FROM user_project WHERE project_id = #{projectId})
+    </select>
+    <select id="findCreator" resultType="com.sun.temp.update_manyi.domain.User">
+        SELECT * FROM t_user WHERE id = (SELECT created_by FROM project WHERE id = #{projectId})
+    </select>
+</mapper>
