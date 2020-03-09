@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sun.temp.update_manyi.repository.UserProjectMapper">
+
+
+    <insert id="batchInsert">
+        INSERT INTO user_project (user_id, project_id, source_type) VALUES
+        <foreach collection="userProjectList" item="userProject" separator="),(" open="("
+                 close=")">
+            #{userProject.userId} :: UUID ,#{userProject.projectId} :: UUID ,#{userProject.sourceType}
+        </foreach>
+    </insert>
+</mapper>

@@ -3,6 +3,7 @@ package com.sun.temp.update_manyi.domain;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
@@ -66,6 +67,10 @@ public class Project {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     protected LocalDateTime updatedDate;
 
+    private String description;
+
+    private String createdBy;
+
     public enum Visibility {
         /**
          * 公开的
@@ -121,7 +126,9 @@ public class Project {
         /**
          * 公共事务.
          */
-        PUBLIC_AFFAIRS
+        PUBLIC_AFFAIRS,
+
+        SERVICE_DESIGN
     }
 
     public enum Algorithm {

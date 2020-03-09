@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sun.temp.update_manyi.repository.UserMapper">
+
+
+    <select id="findByUsername" resultType="com.sun.temp.update_manyi.domain.User">
+        SELECT * FROM t_user WHERE username = #{username};
+    </select>
+    <select id="findByUsernameList" resultType="com.sun.temp.update_manyi.domain.User">
+        SELECT * FROM t_user WHERE username IN
+        <foreach collection="usernameList" separator="','" item="username" open="('" close="')">
+            #{username}
+        </foreach>
+        ;
+    </select>
+    <select id="findAll" resultType="com.sun.temp.update_manyi.domain.User">
+        select * from t_user ;
+    </select>
+</mapper>

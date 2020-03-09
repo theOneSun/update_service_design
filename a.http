@@ -5,3 +5,7 @@ GET http://localhost:8080/sql
 GET http://localhost:8080/update
 
 ###
+
+GET http://localhost:8080/replenish
+
+###

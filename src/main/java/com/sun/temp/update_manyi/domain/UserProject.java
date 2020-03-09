@@ -19,9 +19,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserProject {
-    private UUID projectId;
+    private String projectId;
 
-    private UUID userId;
+    private String userId;
 
     @Enumerated(EnumType.STRING)
     private SourceType sourceType;

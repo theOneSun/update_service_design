@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sun.temp.update_manyi.repository.ProjectMapper">
+
+    <update id="updateDescription">
+        UPDATE project SET description = #{description} WHERE id = #{id} :: UUID;
+    </update>
+    <update id="updateCreatedBy">
+        UPDATE project SET created_by = #{userId} :: UUID WHERE id = #{projectId} :: UUID;
+    </update>
+
+
+    <select id="findByLikeName" resultType="com.sun.temp.update_manyi.domain.Project">
+        SELECT * FROM project WHERE name ILIKE concat('%',#{name},'%')
+    </select>
+    <select id="findByName" resultType="com.sun.temp.update_manyi.domain.Project">
+        SELECT * FROM project where name = #{name};
+    </select>
+</mapper>
