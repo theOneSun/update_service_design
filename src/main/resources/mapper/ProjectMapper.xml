@@ -16,4 +16,7 @@
     <select id="findByName" resultType="com.sun.temp.update_manyi.domain.Project">
         SELECT * FROM project where name = #{name};
     </select>
+    <select id="findByCode" resultType="com.sun.temp.update_manyi.domain.Project">
+        SELECT * FROM project where name ILIKE concat('%',#{code},'%') OR description ILIKE concat('%',#{code},'%');
+    </select>
 </mapper>

@@ -42,4 +42,12 @@ public interface ProjectMapper {
      * @param userId
      */
     void updateCreatedBy(@Param("projectId") String projectId,@Param("userId") String userId);
+
+    /**
+     * 项目C号查询是不是在名称和描述中的一个
+     *
+     * @param code 项目C号
+     * @return
+     */
+    List<Project> findByCode(@Param("code") String code);
 }

@@ -12,4 +12,6 @@ import java.util.List;
 @Repository
 public interface UserProjectMapper {
     int batchInsert(@Param("userProjectList") List<UserProject> userProjectList);
+
+    List<UserProject> getAll();
 }

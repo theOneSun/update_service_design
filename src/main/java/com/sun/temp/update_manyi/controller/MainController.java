@@ -37,8 +37,20 @@ public class MainController {
         coreService.generateDate();
     }
 
+    @GetMapping("update_user_login")
+    public void update_user_login(){
+        designService.updateUserLogin();
+    }
+
+
+
     @GetMapping("replenish")
     public void replenish(){
         designService.modifyCreater();
+    }
+
+    @GetMapping("lack_project")
+    public void lackProject(){
+        designService.findNotInSystemProject();
     }
 }

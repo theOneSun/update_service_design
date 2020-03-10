@@ -7,19 +7,24 @@ import com.sun.temp.update_manyi.domain.UserProject;
 import com.sun.temp.update_manyi.repository.ProjectInfoMapper;
 import com.sun.temp.update_manyi.repository.ProjectMapper;
 import com.sun.temp.update_manyi.repository.ProjectTimeMapper;
+import com.sun.temp.update_manyi.repository.UserLoginMapper;
 import com.sun.temp.update_manyi.repository.UserMapper;
 import com.sun.temp.update_manyi.repository.UserProjectMapper;
+import com.sun.temp.update_manyi.util.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
@@ -34,15 +39,18 @@ public class DesignService {
     private final UserMapper userMapper;
     private final UserProjectMapper userProjectMapper;
     private final ProjectTimeMapper projectTimeMapper;
+    private final UserLoginMapper userLoginMapper;
 
     @Autowired
     public DesignService(ProjectInfoMapper projectInfoMapper, ProjectMapper projectMapper, UserMapper userMapper,
-                         UserProjectMapper userProjectMapper, ProjectTimeMapper projectTimeMapper) {
+                         UserProjectMapper userProjectMapper, ProjectTimeMapper projectTimeMapper,
+                         UserLoginMapper userLoginMapper) {
         this.projectInfoMapper = projectInfoMapper;
         this.projectMapper = projectMapper;
         this.userMapper = userMapper;
         this.userProjectMapper = userProjectMapper;
         this.projectTimeMapper = projectTimeMapper;
+        this.userLoginMapper = userLoginMapper;
     }
 
     @Transactional
@@ -70,6 +78,7 @@ public class DesignService {
 
         for (ProjectInfo projectInfo : projectInfos) {
             final String code = projectInfo.getCode();
+            //-------------
             final Project project;
             if (projectInfo.isTrain()) {
                 //培训类项目
@@ -93,11 +102,12 @@ public class DesignService {
                     final String customerId = userMap.get(projectInfo.getCustomerName());
                     //修改创建者
                     for (Project p : iLikeList) {
-                        projectMapper.updateCreatedBy(p.getId(),createdId);
+                        projectMapper.updateCreatedBy(p.getId(), createdId);
 
                         userProjectList.add(new UserProject(p.getId(), createdId, UserProject.SourceType.SELF));
                         userProjectList.add(new UserProject(p.getId(), customerId, UserProject.SourceType.SHARE));
-                        projectTimeMapper.updateBeginEndTime(p.getId(),projectInfo.getBeginTime(),projectInfo.getEndTime());
+                        projectTimeMapper.updateBeginEndTime(p.getId(), projectInfo.getBeginTime(),
+                                                             projectInfo.getEndTime());
                     }
 
                 }
@@ -106,14 +116,31 @@ public class DesignService {
         }
         //去重
         final List<UserProject> insertList = userProjectList.stream()
-                                                         .distinct()
-                                                         .collect(Collectors.toList());
+                                                            .distinct()
+                                                            .collect(Collectors.toList());
         log.info("去掉重复的user_project" + (userProjectList.size() - insertList.size()) + "条");
 
         final int userProjectInsert = userProjectMapper.batchInsert(insertList);
         log.info("userProject插入了" + userProjectInsert + "条");
     }
 
+    /**
+     * 找出excel里有,但是系统里没有的项目号
+     */
+    public void findNotInSystemProject() {
+        //查询所有project_info
+        List<String> noProCodeList = new ArrayList<>();
+        final List<ProjectInfo> projectInfoList = projectInfoMapper.getAll();
+        for (ProjectInfo projectInfo : projectInfoList) {
+            final List<Project> byCodeList = projectMapper.findByCode(projectInfo.getCode());
+            if (ObjectUtils.isEmpty(byCodeList)) {
+                noProCodeList.add(projectInfo.getCode());
+            }
+
+        }
+        log.info("打印系统没有项目的项目号: ");
+        noProCodeList.forEach(System.out::println);
+    }
 
     /**
      * 拼接备注中的项目号
@@ -127,5 +154,36 @@ public class DesignService {
         } else {
             return String.join(",", description, code);
         }
+    }
+
+    /**
+     * 更新项目人员最后登录时间
+     */
+    public void updateUserLogin() {
+        /*
+        1.找出有多个项目的账号user_id
+        2.根据账号user_id找出对应的项目project_info,找出最晚的时间
+        3.user_login的时间就是最晚时间加一周以内的时间
+         */
+        //超过一个项目的项目账号
+        List<User> userList = userMapper.findMoreProjectUser();
+
+        for (User user : userList) {
+            //在project_info中找最大时间
+            LocalDate lastEndTime = projectInfoMapper.findMaxEndTimeByAccount(user.getUsername());
+            //找最小时间
+            LocalDate earlierBeginTime = projectInfoMapper.findMinBeginTimeByAccount(user.getUsername());
+
+            //生成创建时间
+            final LocalDateTime createdDate = TimeUtils.workTime(earlierBeginTime);
+            //更新用户创建时间
+            userMapper.updateCreatedDate(user.getId(),createdDate);
+
+            //生成一个登录时间
+            final LocalDateTime lastLoginTime = TimeUtils.workTime(lastEndTime);
+            //更新用户登录记录
+            userLoginMapper.updateLastLoginTime(lastLoginTime,user.getId());
+        }
+
     }
 }

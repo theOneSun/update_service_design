@@ -10,4 +10,7 @@
             #{userProject.userId} :: UUID ,#{userProject.projectId} :: UUID ,#{userProject.sourceType}
         </foreach>
     </insert>
+    <select id="getAll" resultType="com.sun.temp.update_manyi.domain.UserProject">
+        select * from user_project
+    </select>
 </mapper>

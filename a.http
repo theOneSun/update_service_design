@@ -9,3 +9,10 @@ GET http://localhost:8080/update
 GET http://localhost:8080/replenish
 
 ###
+GET http://localhost:8080/lack_project
+
+###
+
+GET http://localhost:8080/update_user_login
+
+###

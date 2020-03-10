@@ -135,7 +135,9 @@ public class ProjectTime {
         /**
          * 公共事务.
          */
-        PUBLIC_AFFAIRS
+        PUBLIC_AFFAIRS,
+
+        SERVICE_DESIGN
     }
 
     public enum Algorithm {

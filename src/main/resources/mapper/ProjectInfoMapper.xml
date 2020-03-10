@@ -5,4 +5,10 @@
     <select id="getAll" resultType="com.sun.temp.update_manyi.domain.ProjectInfo">
         SELECT * FROM project_info
     </select>
+    <select id="findMaxEndTimeByAccount" resultType="java.time.LocalDate">
+        SELECT max(end_time) FROM project_info WHERE username = #{account} OR customer_name = #{account};
+    </select>
+    <select id="findMinBeginTimeByAccount" resultType="java.time.LocalDate">
+        SELECT min(begin_time) FROM project_info WHERE username = #{account} OR customer_name = #{account};
+    </select>
 </mapper>
