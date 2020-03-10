@@ -23,4 +23,6 @@ public interface ProjectInfoMapper {
     LocalDate findMaxEndTimeByAccount(@Param("account") String account);
 
     LocalDate findMinBeginTimeByAccount(@Param("account") String account);
+
+    LocalDate getEarlierBeginDate(@Param("codeArray") String[] codeArray);
 }

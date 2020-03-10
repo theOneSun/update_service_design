@@ -4,6 +4,7 @@ import com.sun.temp.update_manyi.domain.Project;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -50,4 +51,8 @@ public interface ProjectMapper {
      * @return
      */
     List<Project> findByCode(@Param("code") String code);
+
+    List<Project> findTrainProject();
+
+    void updateCreatedTime(@Param("id") String id, @Param("createdTime") LocalDateTime createdTime);
 }

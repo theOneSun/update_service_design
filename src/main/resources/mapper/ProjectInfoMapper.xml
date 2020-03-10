@@ -11,4 +11,11 @@
     <select id="findMinBeginTimeByAccount" resultType="java.time.LocalDate">
         SELECT min(begin_time) FROM project_info WHERE username = #{account} OR customer_name = #{account};
     </select>
+    <select id="getEarlierBeginDate" resultType="java.time.LocalDate">
+        SELECT min(begin_time) FROM project_info WHERE code IN
+        <foreach collection="codeArray" item="code" separator="," open="(" close=")">
+            #{code}
+        </foreach>
+        ;
+    </select>
 </mapper>

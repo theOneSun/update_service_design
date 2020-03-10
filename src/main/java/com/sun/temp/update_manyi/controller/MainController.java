@@ -42,7 +42,10 @@ public class MainController {
         designService.updateUserLogin();
     }
 
-
+    @GetMapping("update_train")
+    public void update_train(){
+        designService.updateTrainProjectCreatedDate();
+    }
 
     @GetMapping("replenish")
     public void replenish(){

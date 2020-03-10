@@ -184,6 +184,26 @@ public class DesignService {
             //更新用户登录记录
             userLoginMapper.updateLastLoginTime(lastLoginTime,user.getId());
         }
+    }
 
+    /**
+     * 修改培训类项目创建时间
+     */
+    public void updateTrainProjectCreatedDate(){
+        /*
+        1.查询培训类项目(暂定为description不为空的)
+        2.根据项目号查询最早的开始时间
+        3.根据最早时间+1天(保证项目创建在账号创建之后)生成具体时间
+        4.更新project
+         */
+        List<Project> projectList = projectMapper.findTrainProject();
+
+        for (Project project : projectList) {
+            final String description = project.getDescription();
+            final String[] codeArray = description.split(",");
+            LocalDate earlierBeginDate = projectInfoMapper.getEarlierBeginDate(codeArray);
+            final LocalDateTime createdTime = TimeUtils.workTime(earlierBeginDate.plusDays(1));
+            projectMapper.updateCreatedTime(project.getId(),createdTime);
+        }
     }
 }

@@ -1,18 +1,21 @@
-GET http://localhost:8080/sql
+GET http://localhost:8085/sql
 
 ###
 
-GET http://localhost:8080/update
+GET http://localhost:8085/update
 
 ###
 
-GET http://localhost:8080/replenish
+GET http://localhost:8085/replenish
 
 ###
-GET http://localhost:8080/lack_project
+GET http://localhost:8085/lack_project
 
 ###
 
-GET http://localhost:8080/update_user_login
+GET http://localhost:8085/update_user_login
+
+###
+GET http://localhost:8085/update_train
 
 ###
