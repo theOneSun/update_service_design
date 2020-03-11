@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sun.temp.update_manyi.repository.ProjectDataMapper">
+
+
+    <update id="updateTimeByImportBatch">
+        UPDATE project_data
+        SET created_date = #{createdTime} :: timestamp,
+                updated_date = #{createdTime} :: timestamp
+        WHERE import_batch = #{importBatch} ;
+    </update>
+</mapper>

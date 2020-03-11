@@ -1,9 +1,13 @@
 package com.sun.temp.update_manyi.service;
 
+import com.sun.temp.update_manyi.domain.DataUpload;
 import com.sun.temp.update_manyi.domain.Project;
 import com.sun.temp.update_manyi.domain.ProjectInfo;
 import com.sun.temp.update_manyi.domain.User;
 import com.sun.temp.update_manyi.domain.UserProject;
+import com.sun.temp.update_manyi.repository.ComplexMapper;
+import com.sun.temp.update_manyi.repository.IndexSystemMapper;
+import com.sun.temp.update_manyi.repository.ProjectDataMapper;
 import com.sun.temp.update_manyi.repository.ProjectInfoMapper;
 import com.sun.temp.update_manyi.repository.ProjectMapper;
 import com.sun.temp.update_manyi.repository.ProjectTimeMapper;
@@ -20,11 +24,13 @@ import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -40,17 +46,24 @@ public class DesignService {
     private final UserProjectMapper userProjectMapper;
     private final ProjectTimeMapper projectTimeMapper;
     private final UserLoginMapper userLoginMapper;
+    private final ComplexMapper complexMapper;
+    private final IndexSystemMapper indexSystemMapper;
+    private final ProjectDataMapper projectDataMapper;
 
     @Autowired
     public DesignService(ProjectInfoMapper projectInfoMapper, ProjectMapper projectMapper, UserMapper userMapper,
                          UserProjectMapper userProjectMapper, ProjectTimeMapper projectTimeMapper,
-                         UserLoginMapper userLoginMapper) {
+                         UserLoginMapper userLoginMapper, ComplexMapper complexMapper,
+                         IndexSystemMapper indexSystemMapper, ProjectDataMapper projectDataMapper) {
         this.projectInfoMapper = projectInfoMapper;
         this.projectMapper = projectMapper;
         this.userMapper = userMapper;
         this.userProjectMapper = userProjectMapper;
         this.projectTimeMapper = projectTimeMapper;
         this.userLoginMapper = userLoginMapper;
+        this.complexMapper = complexMapper;
+        this.indexSystemMapper = indexSystemMapper;
+        this.projectDataMapper = projectDataMapper;
     }
 
     @Transactional
@@ -190,6 +203,7 @@ public class DesignService {
      * 修改培训类项目创建时间
      */
     public void updateTrainProjectCreatedDate(){
+        Random random = new Random();
         /*
         1.查询培训类项目(暂定为description不为空的)
         2.根据项目号查询最早的开始时间
@@ -204,6 +218,26 @@ public class DesignService {
             LocalDate earlierBeginDate = projectInfoMapper.getEarlierBeginDate(codeArray);
             final LocalDateTime createdTime = TimeUtils.workTime(earlierBeginDate.plusDays(1));
             projectMapper.updateCreatedTime(project.getId(),createdTime);
+
+            // 修改data_upload的created_time,然后根据importBatch修改indexSystem的createdTime&updateTime和projectData中的createdTime&updateTime
+            //统一在项目创建的10~30后导入
+            final List<DataUpload> dataUploadList = complexMapper.findDataUploadByPId(
+                    UUID.fromString(project.getId()));
+            for (DataUpload upload : dataUploadList) {
+                //升序每次多个几分钟
+                final LocalDateTime uploadTime = createdTime.plusMinutes(random.nextInt(10))
+                                                         .plusSeconds(random.nextInt(60))
+                                                         .plus(random.nextInt(1000), ChronoUnit.MILLIS);
+                upload.setCreatedTime(uploadTime);
+
+
+                //根据importBatch修改pd和indexSystem
+                indexSystemMapper.updateTimeByImportBatch(upload.getImportBatch(),upload.getCreatedTime());
+                projectDataMapper.updateTimeByImportBatch(upload.getImportBatch(),upload.getCreatedTime());
+            }
+
+            //更新dataUpload
+            complexMapper.updateDataUploads(dataUploadList);
         }
     }
 }

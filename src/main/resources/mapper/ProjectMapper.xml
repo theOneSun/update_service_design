@@ -9,7 +9,7 @@
         UPDATE project SET created_by = #{userId} :: UUID WHERE id = #{projectId} :: UUID;
     </update>
     <update id="updateCreatedTime">
-        UPDATE project SET created_date = #{createdTime} ::timestamp WHERE id = #{id} :: uuid;
+        UPDATE project SET created_date = #{createdTime} ::timestamp , updated_date = #{createdTime} :: timestamp  WHERE id = #{id} :: uuid;
     </update>
 
 
